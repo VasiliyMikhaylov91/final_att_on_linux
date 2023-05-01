@@ -1,0 +1,67 @@
+chelchik@gb-linux:~$ sudo mysql
+
+mysql> CREATE DATABASE nursery;
+
+mysql> USE nursery;
+
+mysql> CREATE TABLE Animals
+    -> (
+    -> Id INT PRIMARY KEY,
+    -> Type VARCHAR(20)
+    -> );
+
+mysql> INSERT INTO Animals (Id, Type)
+    -> VALUES
+    -> (1, 'HomeAnimals'),
+    -> (2, 'MountAnimals');
+
+mysql> CREATE TABLE AnimalsKind
+    -> (
+    -> Id INT PRIMARY KEY,
+    -> Type_Id INT,
+    -> CONSTRAINT fk_kind_type_id FOREIGN KEY (Type_Id) REFERENCES Animals (Id),
+    -> Kind VARCHAR(20)
+    -> );
+
+mysql> INSERT INTO AnimalsKind
+    -> VALUES
+    -> (1,1,'Dog'),
+    -> (2,1,'Cat'),
+    -> (3,1,'Hamster'),
+    -> (4,2,'Horse'),
+    -> (5,2,'Camel'),
+    -> (6,2,'Donkey');
+
+mysql> CREATE TABLE AllAnimals
+    -> (
+    -> Id INT PRIMARY KEY,
+    -> Kind_Id INT,
+    -> CONSTRAINT fk_anm_kind_id FOREIGN KEY (Kind_Id) REFERENCES AnimalsKind (Id),
+    -> Animal_name VARCHAR(20),
+    -> Comands TEXT,
+    -> BirthDate DATE
+    -> );
+
+mysql> INSERT INTO AllAnimals
+    -> VALUES
+    -> (1,1,'Бобик',"Сидеть Лежать Место",'2020-02-04'),
+    -> (2,2,'Мурзик',"-",'2018-04-15'),
+    -> (3,3,'Хомка',"-",'2022-11-20'),
+    -> (4,4,'Бурушка', "Ко_мне Иди_попасись", '2015-01-12'),
+    -> (5,5,'Горбун', "За_мной, Вперёд, Стоять", '2018-06-24'),
+    -> (6,6,'Красавчик', '-', '2023-03-26');
+
+mysql> DELETE FROM AllAnimals WHERE Kind_Id = (SELECT Id FROM AnimalsKind WHERE Kind = 'Camel');
+
+mysql> SELECT * FROM AllAnimals
+    -> WHERE Kind_Id = (SELECT Id FROM AnimalsKind WHERE Kind = 'Horse') OR
+    -> Kind_Id = (SELECT Id FROM AnimalsKind WHERE Kind = 'Donkey');
+
+mysql> SELECT Animal_name, CONCAT(FLOOR(DATEDIFF(CURTIME(), BirthDate)/30), ' месяцев') AS Age FROM AllAnimals
+    -> WHERE FLOOR(DATEDIFF(CURTIME(), BirthDate)/30) > 1 AND
+    -> FLOOR(DATEDIFF(CURTIME(), BirthDate)/30) < 36;
+
+mysql> SELECT AllAnimal.Animal_name, AllAnimal.Comands, AllAnimal.BirthDate, AnimalsKind.Kind
+    -> From AllAnimals
+    -> LEFT JOIN AnimalsKind
+    -> ON AllAnimal.Kind_Id = AnimalsKind.Id;
